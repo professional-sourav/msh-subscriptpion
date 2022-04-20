@@ -35,9 +35,14 @@ class Subscription extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function users()
+    public function user()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'stripe_price', 'stripe_id');
     }
 
     /*

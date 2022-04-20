@@ -39,12 +39,13 @@ class SubscriptionCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
-        CRUD::column('user_id');
-        CRUD::column('name');
-        CRUD::column('stripe_id');
+        // CRUD::column('id');
+        CRUD::column('user');
+        CRUD::column('plan');
+        // CRUD::column('name');
+        // CRUD::column('stripe_id');
         CRUD::column('stripe_status');
-        CRUD::column('stripe_price');
+        // CRUD::column('stripe_price');
         CRUD::column('quantity');
         CRUD::column('trial_ends_at');
         CRUD::column('ends_at');
