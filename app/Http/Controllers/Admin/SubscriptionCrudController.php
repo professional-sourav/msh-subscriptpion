@@ -29,6 +29,9 @@ class SubscriptionCrudController extends CrudController
         CRUD::setModel(\App\Models\Subscription::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/subscription');
         CRUD::setEntityNameStrings('subscription', 'subscriptions');
+
+        // we don't want to delete the subscription
+        $this->crud->denyAccess('delete');
     }
 
     /**
@@ -44,7 +47,7 @@ class SubscriptionCrudController extends CrudController
         CRUD::column('plan');
         // CRUD::column('name');
         // CRUD::column('stripe_id');
-        CRUD::column('stripe_status');
+        $this->crud->addColumn(['name' => 'stripe_status', 'type' => 'text', 'label' => 'Activation Status']);
         // CRUD::column('stripe_price');
         CRUD::column('quantity');
         CRUD::column('trial_ends_at');
@@ -73,7 +76,29 @@ class SubscriptionCrudController extends CrudController
         CRUD::field('user_id');
         CRUD::field('name');
         CRUD::field('stripe_id');
-        CRUD::field('stripe_status');
+        // CRUD::field('stripe_status');
+
+        $this->crud->addField([
+            'name'            => 'stripe_status',
+            'label'           => "Select Activation Status",
+            'type'            => 'select_from_array',
+            'hint'            => "Stripe has mentioned in the API, https://stripe.com/docs/api/subscriptions/list#list_subscriptions-status",
+            'options'         => [
+                'all'                   => 'All',
+                'active'                => 'Active', 
+                'past_due'              => 'Past Due', 
+                'unpaid'                => 'Unpaid',
+                'canceled'              => 'Canceled',
+                'incomplete'            => 'Incomplete',
+                'incomplete_expired'    => 'Incomplete Expired',
+                'trialing'              => 'Trialing',
+                'ended'                 => 'Ended'
+            ],
+            // 'allows_null'     => false,
+            // 'allows_multiple' => true,
+            // 'tab'             => 'Tab name here',
+        ]);
+
         CRUD::field('stripe_price');
         CRUD::field('quantity');
         CRUD::field('trial_ends_at');
