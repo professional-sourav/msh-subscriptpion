@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 class SubscriptionController extends Controller
 {
     public function index() {
-        $plans = Plans::get();
+
+        $plans = Plans::whereNotIn("identifier", auth()->user()->subscriptions()->active()->get()->pluck("name"))
+            ->get();
 
         return view('subscriptions.plans', compact('plans'));
     }    
