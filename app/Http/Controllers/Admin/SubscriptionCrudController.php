@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\SubscriptionRequest;
+use App\Models\Subscription;
+use App\Models\User;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -15,7 +17,7 @@ class SubscriptionCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitStore; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
@@ -122,5 +124,31 @@ class SubscriptionCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function update()
+    {
+        // do something before validation, before save, before everything
+
+        $response = $this->traitStore();
+
+        // do something after save
+        if ( request()->has('stripe_status') ) {
+
+            $user           = User::find( request()->input('user_id') );
+            $subscription   = Subscription::find( request()->input('id') );
+
+            if ( !is_null($user) && !is_null($subscription) ) {
+
+                switch ( request()->input('stripe_status') ) {
+
+                    case "canceled":
+                        $user->subscription( optional($subscription)->name ?? "default" )
+                        ->cancelNow();
+                }
+            }
+        }
+
+        return $response;
     }
 }
