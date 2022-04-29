@@ -25,10 +25,15 @@ Route::group(['namespace' => 'Subscriptions'], function() {
     });
 });
 
+Auth::routes();
+
+Route::prefix('activate')->group(function () {
+    Route::get('/success', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activationSuccess'])->name('activation.success');
+    Route::get('/', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activatePlugin'])->name('activate_plugin');
+});
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
 Route::get('/', function () {
     return view('welcome');
 });
-
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
