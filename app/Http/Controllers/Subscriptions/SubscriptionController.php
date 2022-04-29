@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Subscriptions;
 use App\Http\Controllers\Controller;
 use App\Models\Plans;
 use App\Models\Subscription;
+use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,7 @@ class SubscriptionController extends Controller
             ->get();
 
         return view('subscriptions.plans', compact('plans'));
-    }    
+    }
 
     public function cancel(Request $request) {
 
@@ -55,13 +56,13 @@ class SubscriptionController extends Controller
 
         } else {
 
-            $credentials      = [ 
+            $credentials      = [
                 "email"     => config("main.default.login.email"),
                 "password"  => config("main.default.login.password")
             ];
 
             if ( Auth::attempt( $credentials ) ) {
-                
+
                 $user = Auth::user();
             }
         }
@@ -88,10 +89,10 @@ class SubscriptionController extends Controller
 
 
     // "admin.php?page=bertha-ai-license&bertha_success_response=YTdlZTIxNzM0NGNhYzgyZjA4ZDIwZDMyY2JhMDc1ZDk%3D&bertha_key_expires=bGlmZXRpbWU%3D",
-    public function activationSuccess(Request $request)
+    public function activationSuccess(Request $request, StripeService $stripe)
     {
-        $url = sprintf( 
-            "%s/admin.php?page=bertha-ai-license&bertha_success_response=%s&bertha_key_expires=%s", 
+        $url = sprintf(
+            "%s/admin.php?page=bertha-ai-license&bertha_success_response=%s&bertha_key_expires=%s",
             $request->activation_callback,
             $request->subscription,
             ""
