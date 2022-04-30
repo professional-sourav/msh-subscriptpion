@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Plans;
 use App\Models\Subscription;
 use App\Services\StripeService;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -115,11 +116,13 @@ class SubscriptionController extends Controller
             $url = sprintf(
                 "%s/wp-admin/admin.php?page=bertha-ai-license&bertha_success_response=%s&bertha_key_expires=%s",
                 base64_decode($request->activation_callback),
-                base64_encode($subscription->stripe_id),
+                base64_encode($subscription->id),
                 base64_encode( $subscription_end_at )
             );
 
-            return view("plugin.success", compact( "url" ));
+            $url = base64_encode( $url );
+
+            return view("plugin.success", compact( "url", "subscription" ));
         }
     }
 
@@ -127,5 +130,34 @@ class SubscriptionController extends Controller
     public function activationFailed(Request $request)
     {
         return view("plugin.failed");
+    }
+
+    public function postActivationSuccess(Request $request)
+    {
+        if ( $request->has( '_activate_plugin' ) ) {
+
+            // get the plugin redirect URL
+            $plugin_redirect_url = base64_decode( $request->input('_activate_plugin') );
+
+            // get the subscription
+            $active_subscription_id = base64_decode(
+                $request->input( '_active_subscription_id' )
+            );
+
+            $subscription = auth()->user()
+            ->subscriptions()
+            ->find($active_subscription_id);
+
+            // add the site with the subscription
+            if ( !is_null( $subscription ) ) {
+                $subscriptionService = new SubscriptionService( $subscription );
+                $subscriptionService->addSite([
+                    'subscription_id'   => $subscription->id,
+                    'url'               => $plugin_redirect_url
+                ]);
+            }
+
+            return redirect()->away($plugin_redirect_url);
+        }
     }
 }

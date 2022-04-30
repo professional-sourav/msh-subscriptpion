@@ -45,6 +45,11 @@ class Subscription extends Model
         return $this->belongsTo(Plan::class, 'stripe_price', 'stripe_id');
     }
 
+    public function sites()
+    {
+        return $this->hasMany(Site::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
