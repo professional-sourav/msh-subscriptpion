@@ -17,22 +17,19 @@ class PlanSeeder extends Seeder
         DB::table('plans')->insert([
             'title'         => "Basic Plan",
             'identifier'    => "basic",
-            'stripe_id'     => "price_1Kq4lMCxH9FouK7tfqukya76",
-            'amount'        => 1.50
+            'stripe_id'     => "price_1Kq4lMCxH9FouK7tfqukya76"
         ]);
 
         DB::table('plans')->insert([
             'title'         => "Advance Plan",
             'identifier'    => "advance",
-            'stripe_id'     => "price_1Kq4lMCxH9FouK7thQY5Zvxu",
-            'amount'        => 2.00
+            'stripe_id'     => "price_1Kq4lMCxH9FouK7thQY5Zvxu"
         ]);
 
         DB::table('plans')->insert([
             'title'         => "Freelancer Plan",
             'identifier'    => "freelancer",
-            'stripe_id'     => "price_1Kq4lMCxH9FouK7tq5ZOsrmO",
-            'amount'        => 1.00
+            'stripe_id'     => "price_1Kq4lMCxH9FouK7tq5ZOsrmO"
         ]);
     }
 }
