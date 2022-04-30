@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Cartalyst\Stripe\Laravel\Facades\Stripe;
+use Stripe\StripeClient;
 
 class StripeService
 {
@@ -18,6 +18,16 @@ class StripeService
         $this->publishable_key  = config( "stripe.publishable_key" );
         $this->secret_key       = config( "stripe.secret_key" );
 
-        $this->stripe = new Stripe( $this->publishable_key, $this->secret_key );
+        $this->stripe =   new StripeClient( $this->secret_key );
+    }
+
+    public function getPlans()
+    {
+        return json_encode($this->stripe->plans->all());
+    }
+
+    public function getSubscription($subscription_id)
+    {
+        return $this->stripe->subscriptions->retrieve( $subscription_id );
     }
 }

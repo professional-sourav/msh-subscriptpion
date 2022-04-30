@@ -7,6 +7,7 @@ use App\Models\Plans;
 use App\Models\Subscription;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -69,35 +70,51 @@ class SubscriptionController extends Controller
 
         if ( !is_null( $user ) ) {
 
-            // Log::info( auth()->user()->subscriptions()->active()->plan->get() );
+            $subscriptions = auth()->user()->subscriptions();
 
-            foreach ( auth()->user()->subscriptions()->active()->get() as $stripeSubscription ) {
+            if ( $subscriptions->count() > 0 ) {
 
-                $subscription = new Subscription( json_decode( $stripeSubscription, true ) );
+                // if there are multiple subscription exists, take the latest one
+                $latestActiveSubscription = $subscriptions->active()->latest()->first();
 
-                Log::info($subscription->plan);
+                if ( !is_null( $latestActiveSubscription ) ) {
 
-                return redirect()->route("activation.success")->with([
-                    "plugin"                => true,
-                    "plan"                  => base64_encode($subscription->plan->id),
-                    "subscription"          => base64_encode($subscription->id),
-                    "activation_callback"   => $request->activation_callback
-                ]);
+                    return redirect()->route("activation.success", [
+                        "plugin"                => true,
+                        "subscription"          => base64_encode( $latestActiveSubscription->id ),
+                        "activation_callback"   => $request->activation_callback
+                    ]);
+                }
             }
         }
     }
 
 
-    // "admin.php?page=bertha-ai-license&bertha_success_response=YTdlZTIxNzM0NGNhYzgyZjA4ZDIwZDMyY2JhMDc1ZDk%3D&bertha_key_expires=bGlmZXRpbWU%3D",
     public function activationSuccess(Request $request, StripeService $stripe)
     {
-        $url = sprintf(
-            "%s/admin.php?page=bertha-ai-license&bertha_success_response=%s&bertha_key_expires=%s",
-            $request->activation_callback,
-            $request->subscription,
-            ""
-        );
+        $subscription = auth()->user()
+            ->subscriptions()
+            ->find(
+                base64_decode( $request->subscription ) 
+            );
 
-        return view("plugin.success", compact( "url" ));
+        if ( !is_null( $subscription ) ) {
+
+            $stripeSubscription = $stripe->getSubscription( $subscription->stripe_id );
+
+            // echo json_encode($stripeSubscription); die;
+            // echo Carbon::parse( $stripeSubscription["current_period_end"] )->toDateTimeString(); die;
+
+            $subscription_end_at = Carbon::parse( $stripeSubscription["current_period_end"] )->toDateString();
+
+            $url = sprintf(
+                "%s/wp-admin/admin.php?page=bertha-ai-license&bertha_success_response=%s&bertha_key_expires=%s",
+                base64_decode($request->activation_callback),
+                base64_encode($subscription->stripe_id),
+                base64_encode( $subscription_end_at )
+            );
+
+            return view("plugin.success", compact( "url" ));
+        }
     }
 }
