@@ -28,6 +28,7 @@ Route::group(['namespace' => 'Subscriptions'], function() {
 Auth::routes();
 
 Route::prefix('activate')->group(function () {
+    Route::get('/failed', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activationFailed'])->name('activation.failed');
     Route::get('/success', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activationSuccess'])->name('activation.success');
     Route::get('/', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activatePlugin'])->name('activate_plugin');
 });

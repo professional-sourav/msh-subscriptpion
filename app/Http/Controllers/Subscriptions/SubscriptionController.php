@@ -86,6 +86,11 @@ class SubscriptionController extends Controller
                     ]);
                 }
             }
+
+            return redirect()->route("activation.failed", [
+                "plugin"                => true,
+                "activation_callback"   => $request->activation_callback
+            ]);
         }
     }
 
@@ -116,5 +121,11 @@ class SubscriptionController extends Controller
 
             return view("plugin.success", compact( "url" ));
         }
+    }
+
+
+    public function activationFailed(Request $request)
+    {
+        return view("plugin.failed");
     }
 }
