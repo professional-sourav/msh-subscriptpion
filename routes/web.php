@@ -29,7 +29,7 @@ Route::prefix('activate')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/failed', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activationFailed'])->name('activation.failed');
         Route::get('/success', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activationSuccess'])->name('activation.success');
-        Route::post('/success', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'postActivationSuccess'])->name('activation.success.post');
+        Route::post('/success', [App\Http\Controllers\Subscriptions\SubscriptionController::class, '`postActivationSuccess`'])->name('activation.success.post');
         Route::get('/', [App\Http\Controllers\Subscriptions\SubscriptionController::class, 'activatePlugin'])->name('activate_plugin');
     });
 });

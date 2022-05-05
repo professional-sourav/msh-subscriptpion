@@ -17,3 +17,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::prefix('plan')->group(function () {
+    
+    Route::get('/validate/{identifier}', [App\Http\Controllers\Subscriptions\PaymentController::class, 'validatePlan'])
+        ->name("plan.validate-by-identifier");
+});
