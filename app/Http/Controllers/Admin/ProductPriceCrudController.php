@@ -14,7 +14,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 class ProductPriceCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
@@ -40,16 +40,16 @@ class ProductPriceCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('billing_period');
-        CRUD::column('created_at');
+        // CRUD::column('created_at');
         CRUD::column('custom_billing_period');
         CRUD::column('free_trial');
-        CRUD::column('id');
+        // CRUD::column('id');
         CRUD::column('is_default');
         CRUD::column('price_type');
         CRUD::column('pricing_model');
         CRUD::column('product_id');
-        CRUD::column('stripe_id');
-        CRUD::column('updated_at');
+        // CRUD::column('stripe_id');
+        // CRUD::column('updated_at');
         CRUD::column('usage_metered');
 
         /**
@@ -69,17 +69,83 @@ class ProductPriceCrudController extends CrudController
     {
         CRUD::setValidation(ProductPriceRequest::class);
 
-        CRUD::field('billing_period');
-        CRUD::field('created_at');
+        $this->crud->addField([
+            'label'     => "Products",
+            'type'      => 'select',
+            'name'      => 'product_id', // the db column for the foreign key
+
+            // optional
+            // 'entity' should point to the method that defines the relationship in your Model
+            // defining entity will make Backpack guess 'model' and 'attribute'
+            // 'entity'    => 'products',
+
+            // optional - manually specify the related model and attribute
+            'model'     => "App\Models\Product", // related model
+            'attribute' => 'title', // foreign key attribute that is shown to user
+
+            // optional - force the related options to be a custom query, instead of all();
+            'options'   => (function ($query) {
+                                return $query->orderBy('title', 'ASC')->get();
+                            }), //  you can use 
+            // 'tab'             => 'Tab name here',
+        ]);
+
+        // CRUD::field('billing_period');
+        $this->crud->addField(
+            [   // select_from_array
+                'name'        => 'billing_period',
+                'label'       => "Billing Period",
+                'type'        => 'select_from_array',
+                'options'     => [
+                    'day', 
+                    'week', 
+                    'month', 
+                    'quarter', 
+                    'semiannual',
+                    'year'
+                ],
+                'allows_null' => false,
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+        );
+        // CRUD::field('created_at');
         CRUD::field('custom_billing_period');
         CRUD::field('free_trial');
-        CRUD::field('id');
+        // CRUD::field('id');
         CRUD::field('is_default');
-        CRUD::field('price_type');
-        CRUD::field('pricing_model');
-        CRUD::field('product_id');
-        CRUD::field('stripe_id');
-        CRUD::field('updated_at');
+        // CRUD::field('price_type');
+        $this->crud->addField(
+            [   // select_from_array
+                'name'        => 'price_type',
+                'label'       => "Price Type",
+                'type'        => 'select_from_array',
+                'options'     => ['Select', 'recurring', 'oneTime'],
+                'allows_null' => false,
+                'default'     => 1,
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+        );
+        // CRUD::field('pricing_model');
+        $this->crud->addField(
+            [   // select_from_array
+                'name'        => 'pricing_model',
+                'label'       => "Pricing Model",
+                'type'        => 'select_from_array',
+                'options'     => [
+                    'Select',
+                    'standard', 
+                    'package', 
+                    'graduated', 
+                    'volume'
+                ],
+                'allows_null' => false,
+                'default'     => 'standard',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+        );
+        // CRUD::field('product_id');
+        // CRUD::field('stripe_id');
+        // CRUD::field('updated_at');
         CRUD::field('usage_metered');
 
         /**
