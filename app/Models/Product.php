@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory, CrudTrait;
+
+    protected $guarded = [];
 }

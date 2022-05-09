@@ -17,7 +17,7 @@ class CreateFeaturesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('product_prices_id'); 
             $table->foreign('product_prices_id')->references('id')->on('product_prices');
-            $table->string('word_limit');
+            $table->string('word_limit')->nullable();
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

@@ -15,16 +15,16 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string("stripe_id");
+            $table->string("stripe_id")->nullable();
             
             $table->unsignedBigInteger('user_id'); 
             $table->foreign('user_id')->references('id')->on('users');
 
             $table->string("title");
-            $table->text("description");
-            $table->string("image_url");
+            $table->text("description")->nullable();
+            $table->string("image_url")->nullable();
             $table->enum('product_type',['default','bundle'])->default('bundle');
-            $table->boolean("status");
+            $table->boolean("status")->default(true);
 
             $table->softDeletes();
 

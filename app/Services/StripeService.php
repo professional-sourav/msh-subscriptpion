@@ -30,4 +30,12 @@ class StripeService
     {
         return $this->stripe->subscriptions->retrieve( $subscription_id );
     }
+
+    public function createProduct(array $data) {
+
+        if ( !empty( $data['name'] ) ) {
+
+            $this->stripe->products->create( $data );
+        }
+    }
 }

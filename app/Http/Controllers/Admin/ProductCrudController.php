@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProductRequest;
+use App\Services\StripeService;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ProductCrudController
@@ -14,7 +17,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 class ProductCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
@@ -75,7 +78,16 @@ class ProductCrudController extends CrudController
         // CRUD::field('id');
         CRUD::field('product_type');
         CRUD::field('image_url');
-        CRUD::field('status');
+        CRUD::addField([
+            'name' => 'status',
+            'type' => 'checkbox',
+            'value' => true
+        ]);
+        CRUD::addField([
+            'name' => 'user_id',
+            'type' => 'hidden',
+            'value' =>  backpack_user()->id
+        ]);
         // CRUD::field('stripe_id');
         // CRUD::field('updated_at');
         // CRUD::field('user_id');
@@ -96,5 +108,30 @@ class ProductCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+
+    public function store(Request $request) {
+        
+        // do something before validation, before save, before everything
+        
+        $response = $this->traitStore();
+
+        // do something after save
+        // echo json_encode($response); die;
+
+        /**
+         * Add the product to the Stripe
+         */
+        $stripeService = new StripeService();
+        $stripeService->createProduct([
+            "name"          => $request->title,
+            "active"        => boolval( $request->status ),
+            "images"        => (!empty($request->image_url)) ? [ $request->image_url ] : [],
+            "description"   => $request->description,
+        ]);
+
+
+        return $response;
     }
 }
