@@ -28,6 +28,10 @@ class Plan extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function syncPlansButtonHtml() 
+    {
+        return '<button type="button" id="plan_sync_with_stripe" class="btn btn-primary" data-url="'.route("plan.sync-with-stripe").'" data-toggle="tooltip" title="Just a demo custom button.">Sync with Stripe</a>';
+    }
 
     /*
     |--------------------------------------------------------------------------

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\PlanRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Http\Request;
 
 /**
  * Class PlanCrudController
@@ -52,6 +53,12 @@ class PlanCrudController extends CrudController
          * - CRUD::column('price')->type('number');
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
          */
+
+        $this->crud->removeButton("create");
+
+        // add the sync button
+        $this->crud->addButtonFromModelFunction('top', 'sync_plans', 'syncPlansButtonHtml', 'beginning');
+
     }
 
     /**
@@ -88,5 +95,10 @@ class PlanCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function syncWithStripe(Request $request)
+    {
+        dd($request);
     }
 }
