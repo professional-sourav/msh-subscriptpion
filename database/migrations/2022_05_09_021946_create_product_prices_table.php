@@ -16,10 +16,12 @@ class CreateProductPricesTable extends Migration
         Schema::create('product_prices', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id'); 
-            $table->foreign('product_id')->references('id')->on('products');            
+            $table->foreign('product_id')->references('id')->on('products'); 
+            $table->unsignedBigInteger('plan_id')->nullable(); 
+            $table->foreign('plan_id')->references('id')->on('plans'); 
             $table->string("stripe_id")->nullable();
-            $table->enum('pricing_model',['standard','package', 'graduated', 'volume'])->default('standard');
-            $table->enum('price_type',['recurring','oneTime'])->default('recurring');
+            $table->enum('pricing_model', ['standard','package', 'graduated', 'volume'])->default('standard');
+            $table->enum('price_type', ['recurring','oneTime'])->default('recurring');
             $table->enum('billing_period',['day','week', 'month', 'quarter', 'semiannual', 'year', 'custom']);
             $table->string('custom_billing_period')->nullable();
             $table->boolean('usage_metered')->default(false);

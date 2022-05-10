@@ -92,6 +92,27 @@ class ProductPriceCrudController extends CrudController
             // 'tab'             => 'Tab name here',
         ]);
 
+        $this->crud->addField([
+            'label'     => "Plan",
+            'type'      => 'select',
+            'name'      => 'plan_id', // the db column for the foreign key
+
+            // optional
+            // 'entity' should point to the method that defines the relationship in your Model
+            // defining entity will make Backpack guess 'model' and 'attribute'
+            // 'entity'    => 'products',
+
+            // optional - manually specify the related model and attribute
+            'model'     => "App\Models\Plan", // related model
+            'attribute' => 'title', // foreign key attribute that is shown to user
+
+            // optional - force the related options to be a custom query, instead of all();
+            'options'   => (function ($query) {
+                                return $query->orderBy('title', 'ASC')->get();
+                            }), //  you can use 
+            // 'tab'             => 'Tab name here',
+        ]);
+
         // CRUD::field('billing_period');
         $this->crud->addField(
             [   // select_from_array
@@ -99,19 +120,20 @@ class ProductPriceCrudController extends CrudController
                 'label'       => "Billing Period",
                 'type'        => 'select_from_array',
                 'options'     => [
-                    'day', 
-                    'week', 
-                    'month', 
-                    'quarter', 
-                    'semiannual',
-                    'year'
+                    'Select Period', 
+                    'day'=>'Day', 
+                    'week' => 'Week', 
+                    'month' => 'Month', 
+                    'quarter' => 'Quarter', 
+                    'semiannual' => 'Semiannual',
+                    'year' => 'Year'
                 ],
                 'allows_null' => false,
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
         );
         // CRUD::field('created_at');
-        CRUD::field('custom_billing_period');
+        // CRUD::field('custom_billing_period');
         CRUD::field('free_trial');
         // CRUD::field('id');
         CRUD::field('is_default');
@@ -121,7 +143,7 @@ class ProductPriceCrudController extends CrudController
                 'name'        => 'price_type',
                 'label'       => "Price Type",
                 'type'        => 'select_from_array',
-                'options'     => ['Select', 'recurring', 'oneTime'],
+                'options'     => ['Select Type', 'recurring'=>'Recurring', 'oneTime'=>'One Time'],
                 'allows_null' => false,
                 'default'     => 1,
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
@@ -134,14 +156,14 @@ class ProductPriceCrudController extends CrudController
                 'label'       => "Pricing Model",
                 'type'        => 'select_from_array',
                 'options'     => [
-                    'Select',
-                    'standard', 
-                    'package', 
-                    'graduated', 
-                    'volume'
+                    'Select Model',
+                    'standard'=>'Standard', 
+                    'package'=>'Package', 
+                    'graduated'=>'Graduated', 
+                    'volume'=>'Volume'
                 ],
                 'allows_null' => false,
-                'default'     => 'standard',
+                'default'     => 1,
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
         );
@@ -180,13 +202,13 @@ class ProductPriceCrudController extends CrudController
         /**
          * Add the product to the Stripe
          */
-        $stripeService = new StripeService();
-        $stripeService->attachProductPrice([
-            "name"          => $request->title,
-            "active"        => boolval( $request->status ),
-            "images"        => (!empty($request->image_url)) ? [ $request->image_url ] : [],
-            "description"   => $request->description,
-        ]);
+        // $stripeService = new StripeService();
+        // $stripeService->attachProductPrice([
+        //     "name"          => $request->title,
+        //     "active"        => boolval( $request->status ),
+        //     "images"        => (!empty($request->image_url)) ? [ $request->image_url ] : [],
+        //     "description"   => $request->description,
+        // ]);
 
 
         return $response;

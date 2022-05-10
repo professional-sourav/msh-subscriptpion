@@ -16,8 +16,8 @@ class CreatePlansTable extends Migration
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('identifier')->unique;
-            $table->string('stripe_id')->unique;
+            $table->string('word_limit')->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

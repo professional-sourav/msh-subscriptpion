@@ -21,7 +21,6 @@ Route::group([
     Route::crud('plan', 'PlanCrudController');
     Route::crud('subscription', 'SubscriptionCrudController');
     Route::crud('product', 'ProductCrudController');
-    Route::crud('feature', 'FeatureCrudController');
     Route::crud('site', 'SiteCrudController');
     Route::crud('product-meta', 'ProductMetaCrudController');
     Route::crud('product-price', 'ProductPriceCrudController');
