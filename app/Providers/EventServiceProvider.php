@@ -30,6 +30,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         // Observers
-        Product::observe(ProductObserver::class);
     }
 }

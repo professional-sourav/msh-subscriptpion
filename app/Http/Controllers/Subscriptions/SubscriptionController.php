@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Subscriptions;
 
 use App\Http\Controllers\Controller;
-use App\Models\Plans;
+use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\StripeService;
 use App\Services\SubscriptionService;
@@ -16,7 +16,7 @@ class SubscriptionController extends Controller
 {
     public function index() {
 
-        $plans = Plans::whereNotIn("identifier", auth()->user()->subscriptions()->active()->get()->pluck("name"))
+        $plans = Plan::whereNotIn("identifier", auth()->user()->subscriptions()->active()->get()->pluck("name"))
             ->get();
 
         return view('subscriptions.plans', compact('plans'));

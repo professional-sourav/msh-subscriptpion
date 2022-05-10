@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Subscriptions;
 
 use App\Http\Controllers\Controller;
-use App\Models\Plans;
+use App\Models\Plan;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 
@@ -24,7 +24,7 @@ class PaymentController extends Controller
             'plan'  => 'required'
         ]);
 
-        $plan = Plans::where('identifier', strtolower( $request->plan ))
+        $plan = Plan::where('identifier', strtolower( $request->plan ))
             ->firstOrFail();
         
         $request->user()

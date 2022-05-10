@@ -40,11 +40,12 @@ class PlanCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id');
+        // CRUD::column('stripe_id');
         CRUD::column('title');
         CRUD::column('identifier');
-        CRUD::column('stripe_id');
+        CRUD::column('word_limit');
         CRUD::column('created_at');
-        CRUD::column('updated_at');
+        // CRUD::column('updated_at');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -63,12 +64,13 @@ class PlanCrudController extends CrudController
     {
         CRUD::setValidation(PlanRequest::class);
 
-        CRUD::field('id');
+        // CRUD::field('created_at');
+        // CRUD::field('id');
         CRUD::field('title');
         CRUD::field('identifier');
-        CRUD::field('stripe_id');
-        CRUD::field('created_at');
-        CRUD::field('updated_at');
+        CRUD::field('word_limit');
+        // CRUD::field('stripe_id');
+        // CRUD::field('updated_at');
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
