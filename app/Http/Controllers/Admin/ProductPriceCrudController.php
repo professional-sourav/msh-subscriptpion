@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProductPriceRequest;
+use App\Services\StripeService;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Http\Request;
 
 /**
  * Class ProductPriceCrudController
@@ -164,5 +166,29 @@ class ProductPriceCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function store(Request $request) {
+        
+        // do something before validation, before save, before everything
+        
+        $response = $this->traitStore();
+
+        // do something after save
+        // echo json_encode($response); die;
+
+        /**
+         * Add the product to the Stripe
+         */
+        $stripeService = new StripeService();
+        $stripeService->attachProductPrice([
+            "name"          => $request->title,
+            "active"        => boolval( $request->status ),
+            "images"        => (!empty($request->image_url)) ? [ $request->image_url ] : [],
+            "description"   => $request->description,
+        ]);
+
+
+        return $response;
     }
 }

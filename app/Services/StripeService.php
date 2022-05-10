@@ -35,7 +35,9 @@ class StripeService
 
         if ( !empty( $data['name'] ) ) {
 
-            $this->stripe->products->create( $data );
+            return $this->stripe->products->create( $data );
         }
+
+        return null;
     }
 }

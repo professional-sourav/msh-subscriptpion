@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ProductRequest;
+use App\Models\Product;
 use App\Services\StripeService;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -18,7 +19,7 @@ class ProductCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation { store as traitStore; }
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
@@ -108,30 +109,5 @@ class ProductCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
-    }
-
-
-    public function store(Request $request) {
-        
-        // do something before validation, before save, before everything
-        
-        $response = $this->traitStore();
-
-        // do something after save
-        // echo json_encode($response); die;
-
-        /**
-         * Add the product to the Stripe
-         */
-        $stripeService = new StripeService();
-        $stripeService->createProduct([
-            "name"          => $request->title,
-            "active"        => boolval( $request->status ),
-            "images"        => (!empty($request->image_url)) ? [ $request->image_url ] : [],
-            "description"   => $request->description,
-        ]);
-
-
-        return $response;
     }
 }
