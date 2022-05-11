@@ -40,4 +40,16 @@ class StripeService
 
         return null;
     }
+
+    public function getProductPrices()
+    {
+        return $this->stripe->prices->all([
+            'product' => env("STRIPE_PRODUCT_ID")
+        ]);
+    }
+
+    public function updateProductPrices(string $price_id, array $data)
+    {
+        return $this->stripe->prices->update($price_id, $data);
+    }
 }

@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\PlanRequest;
+use App\Models\Plan;
+use App\Services\StripeService;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Class PlanCrudController
@@ -16,7 +20,7 @@ class PlanCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
@@ -57,7 +61,7 @@ class PlanCrudController extends CrudController
         $this->crud->removeButton("create");
 
         // add the sync button
-        $this->crud->addButtonFromModelFunction('top', 'sync_plans', 'syncPlansButtonHtml', 'beginning');
+        $this->crud->addButtonFromView('top', 'syncWithStripe', 'price-sync-with-stripe', 'end');
 
     }
 
@@ -97,8 +101,75 @@ class PlanCrudController extends CrudController
         $this->setupCreateOperation();
     }
 
+    public function update()
+    {
+        // do something before validation, before save, before everything
+
+        $response = $this->traitUpdate();
+
+        // $this->crud->entry => Plan
+
+        // update the price on Stripe
+        $stripeService = new StripeService();
+        $stripeService->updateProductPrices( $this->crud->entry->stripe_id, [
+            'nickname' => $this->crud->entry->title,
+            'metadata' => [
+                'word_limit' => $this->crud->entry->word_limit ?? null
+            ]
+        ] );
+
+        return $response;
+    }
+
     public function syncWithStripe(Request $request)
     {
-        dd($request);
+        $stripeService = new StripeService();
+        
+        // retrive the prices from Stripe
+        $prices = $stripeService->getProductPrices();
+
+        if ( !is_null( $prices['data'] ) ) {
+
+            // store the prices in the DB
+            foreach ( $prices['data'] as $priceData ) {
+
+                // if the price_id already in the DB, ignore it
+                $plan = Plan::where( "stripe_id", $priceData->id )->first();
+
+                if ( is_null( $plan ) ) {
+
+                    $title = $priceData->unit_amount_decimal / 100 . "$ / " . $priceData->recurring->interval;
+
+                    $plan = new Plan();
+                    $plan->title        = $priceData->nickname ?? $title;
+                    $plan->identifier   = Str::slug( $priceData->nickname ?? $title );
+                    $plan->stripe_id    = $priceData->id;
+                    
+                    // Store metadata in the key exists as a column on the table
+                    if ( !empty( $priceData->metadata ) ) {
+
+                        $metadata_arr = json_decode( json_encode($priceData->metadata), true );
+
+                        foreach ( $metadata_arr as $column=>$metadata ) {
+
+                            if (Schema::hasColumn('plans', $column)) {
+                                
+                                $plan->{$column} = $metadata;
+                            }
+                        }
+                    }
+
+                    $plan->save();
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+        ]);
     }
 }
